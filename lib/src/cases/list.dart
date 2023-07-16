@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:scotland_yard_companion/src/cases/controller.dart';
 import 'package:scotland_yard_companion/src/clues/list.dart';
+import 'package:scotland_yard_companion/src/models/states.dart';
 
 class CasesList extends StatefulWidget {
-  const CasesList({super.key});
+  final BooksController? controller;
+
+  const CasesList({
+    super.key,
+    this.controller,
+  });
 
   @override
   State<CasesList> createState() => _CasesListState();
 }
 
 class _CasesListState extends State<CasesList> {
-  final BooksController controller = BooksController();
+  late final BooksController controller;
 
   @override
   void initState() {
     super.initState();
 
-    controller.loadBooks();
+    if (widget.controller != null) {
+      controller = widget.controller!;
+    } else {
+      controller = BooksController();
+      controller.loadBooks();
+    }
+
     controller.stateNotifier.addListener(() => setState(() {}));
   }
 
@@ -45,7 +57,7 @@ class _CasesListState extends State<CasesList> {
 
   Widget getBody() {
     switch (controller.state) {
-      case BooksState.success:
+      case ControllerState.success:
         return ListView.builder(
           itemCount: controller.cases.length,
           itemBuilder: (context, index) {
@@ -60,16 +72,21 @@ class _CasesListState extends State<CasesList> {
                 title: Text(caseItem.name),
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => CluesList(caseData: caseItem),
+                    builder: (context) => CluesList(
+                      caseData: caseItem,
+                      onRevelClue: () {
+                        controller.saveConfigurations();
+                      },
+                    ),
                   ));
                 },
               ),
             );
           },
         );
-      case BooksState.loading:
+      case ControllerState.loading:
         return const Center(child: CircularProgressIndicator());
-      case BooksState.empty:
+      case ControllerState.empty:
         return const Center(child: Text('No cases found'));
       default:
         return const Center(child: Text('Something went wrong'));

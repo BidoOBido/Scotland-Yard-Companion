@@ -15,4 +15,9 @@ class Case {
       clues: List<Clue>.from(json['pistas'].map((x) => Clue.fromJson(x))),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'nome': name,
+        'pistas': List<dynamic>.from(clues.map((x) => x.toJson())),
+      };
 }

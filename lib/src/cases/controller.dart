@@ -4,17 +4,17 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scotland_yard_companion/src/models/case.dart';
-
-enum BooksState { success, loading, error, empty }
+import 'package:scotland_yard_companion/src/models/states.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BooksController {
-  ValueNotifier<BooksState> stateNotifier =
-      ValueNotifier<BooksState>(BooksState.empty);
+  ValueNotifier<ControllerState> stateNotifier =
+      ValueNotifier<ControllerState>(ControllerState.empty);
 
   final Map<String, Map<String, Case>> _books = {};
   String? selectedBook;
 
-  BooksState get state => stateNotifier.value;
+  ControllerState get state => stateNotifier.value;
   List<String> get books => _books.keys.toList();
 
   List<Case> get cases {
@@ -27,7 +27,7 @@ class BooksController {
 
   Future<void> loadBooks() async {
     try {
-      stateNotifier.value = BooksState.loading;
+      stateNotifier.value = ControllerState.loading;
 
       final String response = await rootBundle.loadString('assets/data.json');
       final Map<String, dynamic> json = jsonDecode(response);
@@ -35,24 +35,71 @@ class BooksController {
       for (final book in json.keys) {
         final List<dynamic> cases = json[book];
 
-        for (final c in cases) {
-          final Case caseObj = Case.fromJson(c);
-
-          if (_books[book] == null) {
-            _books[book] = {};
-          }
-
-          _books[book]![caseObj.name] = caseObj;
-        }
+        _populateCases(cases, book);
       }
 
       selectedBook = _books.keys.first;
 
       stateNotifier.value =
-          _books.isEmpty ? BooksState.empty : BooksState.success;
+          _books.isEmpty ? ControllerState.empty : ControllerState.success;
+    } catch (e) {
+      stateNotifier.value = ControllerState.error;
+    }
+  }
+
+  Future<void> saveConfigurations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.setString('selectedBook', selectedBook!);
+
+    for (var collection in _books.entries) {
+      prefs.setString(collection.key, jsonEncode(collection.value));
+    }
+  }
+
+  Future<bool> loadConfigurations() async {
+    try {
+      stateNotifier.value = ControllerState.loading;
+
+      await loadBooks();
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      selectedBook = prefs.getString('selectedBook');
+      if (selectedBook == null) {
+        return false;
+      }
+
+      for (var collection in _books.entries) {
+        final String? json = prefs.getString(collection.key);
+
+        if (json != null) {
+          final Map<String, dynamic> cases = jsonDecode(json);
+
+          _populateCases(cases.values.toList(), collection.key);
+        }
+      }
+
+      stateNotifier.value = ControllerState.success;
+
+      return true;
     } catch (e) {
       log(e.toString());
-      stateNotifier.value = BooksState.error;
+      stateNotifier.value = ControllerState.error;
+
+      return false;
+    }
+  }
+
+  void _populateCases(List<dynamic> cases, String book) {
+    for (final c in cases) {
+      final Case caseObj = Case.fromJson(c);
+
+      if (_books[book] == null) {
+        _books[book] = {};
+      }
+
+      _books[book]![caseObj.name] = caseObj;
     }
   }
 }

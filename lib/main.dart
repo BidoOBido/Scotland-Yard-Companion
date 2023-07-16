@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scotland_yard_companion/src/cases/list.dart';
+import 'package:scotland_yard_companion/src/home/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
             seedColor: Colors.blue, brightness: Brightness.dark),
         useMaterial3: true,
       ),
-      home: const CasesList(),
+      home: const Home(),
       debugShowCheckedModeBanner: false,
     );
   }

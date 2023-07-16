@@ -6,10 +6,12 @@ import 'package:scotland_yard_companion/src/widgets/reveal_clue.dart';
 
 class CluesList extends StatefulWidget {
   final Case caseData;
+  final VoidCallback onRevelClue;
 
   const CluesList({
     super.key,
     required this.caseData,
+    required this.onRevelClue,
   });
 
   @override
@@ -44,6 +46,8 @@ class _CluesListState extends State<CluesList> {
                         }
                         valid = true;
                         setState(() {});
+
+                        widget.onRevelClue();
                       }
 
                       if (!valid) {
