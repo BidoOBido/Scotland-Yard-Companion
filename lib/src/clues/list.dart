@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scotland_yard_companion/src/clues/card.dart';
 import 'package:scotland_yard_companion/src/models/case.dart';
 import 'package:scotland_yard_companion/src/models/clue.dart';
 import 'package:scotland_yard_companion/src/widgets/reveal_clue.dart';
@@ -41,6 +42,7 @@ class _CluesListState extends State<CluesList> {
                         for (final clue in clues) {
                           clue.visible = true;
                         }
+                        valid = true;
                         setState(() {});
                       }
 
@@ -50,7 +52,10 @@ class _CluesListState extends State<CluesList> {
                             content: Text('Pista inválida'),
                           ),
                         );
+                        return;
                       }
+
+                      Navigator.of(context).pop();
                     },
                   );
                 },
@@ -75,8 +80,13 @@ class _CluesListState extends State<CluesList> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               title: Text(clue.name),
-              subtitle: Text(clue.text),
-              onTap: () {},
+              subtitle: Text(clue.text, overflow: TextOverflow.ellipsis),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => ClueCard(clue: clue),
+                );
+              },
             ),
           );
         },

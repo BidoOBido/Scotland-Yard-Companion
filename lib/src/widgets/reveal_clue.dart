@@ -41,15 +41,9 @@ class RevealClue extends StatelessWidget {
         TextButton(
           child: const Text('Adicionar'),
           onPressed: () {
-            bool valid = false;
             final number = int.tryParse(_controller.text);
             if (number != null) {
-              valid = true;
               onAdd(number);
-            }
-            if (valid) {
-              _controller.clear();
-              Navigator.of(context).pop();
             }
           },
         ),
