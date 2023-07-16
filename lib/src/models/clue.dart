@@ -1,6 +1,6 @@
 class Clue {
   String name;
-  int number;
+  String number;
   String text;
   bool visible = false;
 

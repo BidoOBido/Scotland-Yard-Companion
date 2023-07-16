@@ -11,7 +11,7 @@ class RevealClue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController _controller = TextEditingController();
+    final TextEditingController controller = TextEditingController();
 
     return AlertDialog(
       title: const Text('Número da Pista'),
@@ -19,7 +19,7 @@ class RevealClue extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
-            controller: _controller,
+            controller: controller,
             decoration: const InputDecoration(
               labelText: 'Número',
             ),
@@ -34,14 +34,14 @@ class RevealClue extends StatelessWidget {
         TextButton(
           child: const Text('Cancelar'),
           onPressed: () {
-            _controller.clear();
+            controller.clear();
             Navigator.of(context).pop();
           },
         ),
         TextButton(
           child: const Text('Adicionar'),
           onPressed: () {
-            final number = int.tryParse(_controller.text);
+            final number = int.tryParse(controller.text);
             if (number != null) {
               onAdd(number);
             }

@@ -37,7 +37,7 @@ class _CluesListState extends State<CluesList> {
 
                       final Iterable<Clue> clues =
                           widget.caseData.clues.where((e) {
-                        return (e.number == number && !e.visible);
+                        return (int.tryParse(e.number) == number && !e.visible);
                       });
 
                       if (clues.isNotEmpty) {
@@ -80,7 +80,7 @@ class _CluesListState extends State<CluesList> {
           return Card(
             child: ListTile(
               leading: Text(
-                (index + 1).toString().padLeft(3, '0'),
+                (clue.number).toString().padLeft(3, '0'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               title: Text(clue.name),
